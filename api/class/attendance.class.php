@@ -281,7 +281,8 @@ class Attendance{
 	
 	public function dayin($request)	{
 		$HrmgtAttendanceDetails= new HrmgtAttendanceDetails();		
-		date_default_timezone_set('Asia/Kolkata');
+		//date_default_timezone_set('Asia/Kolkata');
+		date_default_timezone_set('Asia/Dhaka');
 		if($request["id"] != ""){			
 			$user_id = $request["id"];
 			$userdata = get_userdata($user_id);
@@ -342,7 +343,7 @@ class Attendance{
 	
 	public function lunchstart($request){
 		$HrmgtAttendance= new HrmgtAttendance();
-		date_default_timezone_set('Asia/Kolkata');
+		date_default_timezone_set('Asia/Dhaka');
 		if($request["id"] != "")
 		{
 			$user_id = $request["id"];
@@ -415,7 +416,7 @@ class Attendance{
 	public function lunchend($request)
 	{
 		$HrmgtAttendance= new HrmgtAttendance();
-		date_default_timezone_set('Asia/Kolkata');
+		date_default_timezone_set('Asia/Dhaka');
 		if($request["id"] != "")
 		{
 			$user_id = $request["id"];
@@ -494,7 +495,7 @@ class Attendance{
 	
 	public function dayout($request){
 		$HrmgtAttendanceDetails = new HrmgtAttendanceDetails();
-		date_default_timezone_set('Asia/Kolkata');
+		date_default_timezone_set('Asia/Dhaka');
 		if($request["id"] != ""){
 			$user_id = $request["id"];
 			$userdata = get_userdata($user_id);

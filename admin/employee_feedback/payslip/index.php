@@ -17,22 +17,7 @@ if(isset($_REQUEST['print']) && $_REQUEST['print']=='pdf')
 	require_once HRMS_PLUGIN_DIR .'/salary_slip/salary_slip.php';
 	
 }	
-if(isset($_REQUEST['action']) && $_REQUEST['action']=='delete_payslip')
-{
-	$result=$obj_payslip->hrmgt_delete_paylisp($_REQUEST['AttDetail_id']);
-	if($result)
-	{
-		wp_redirect ( admin_url().'admin.php?page=hrmgt-payslip&tab=payslip_record&message=1');
-	}
-	
-}
-if(isset($_REQUEST['message']) && $_REQUEST['message']== 1){
-?>
-	<div id="message" class="updated below-h2 ">
-		<p><?php _e('Payslip delete successfully','hr_mgt');?></p>
-	</div>
-	<?php 
-}
+
 if(isset($_POST['submit_payslip']))
 {		
 	global $wpdb;
@@ -80,14 +65,7 @@ if(isset($_POST['submit_payslip']))
 	$result = $wpdb->insert($tbl_generated_slip,$PayslipData);	
 	if($result)
 	{
-		if(isset($_POST['custom_slip']))
-		{
-				wp_redirect(admin_url().'admin.php?page=hrmgt-payslip&tab=payslip_record&message=generate_slip');
-		}
-		else
-		{
-			wp_redirect(admin_url().'admin.php?page=hrmgt-payslip&tab=generate_payslip&message=generate_slip');
-		}
+		wp_redirect(admin_url().'admin.php?page=hrmgt-payslip&tab=generate_payslip&message=generate_slip');
 	}	
 }
 
@@ -127,10 +105,13 @@ if($active_tab == 'generate_payslip')
 <script type="text/javascript">
 $(document).ready(function() {
 	jQuery('#generate_payslip').DataTable({
-		"bProcessing": true,
-				 "bServerSide": true,
-				 "sAjaxSource": ajaxurl+'?action=datatable_payslip_ajax_to_load',
-				 "bDeferRender": true,	
+		"responsive": true,
+		"order": [[ 0, "asc" ]],
+		"aoColumns":[
+	        {"bSortable": true},
+	        {"bSortable": true},
+	        {"bSortable": true},	       
+	        {"bSortable": false}]
 	});
 } );
 </script>
@@ -152,7 +133,23 @@ $(document).ready(function() {
 				<th><?php  _e( 'Action', 'hr_mgt' ) ;?></th>
             </tr>           
         </tfoot> 
-     </table>
+        <tbody>
+        <?php 
+		$SlipData=$obj_payslip->hrmgt_get_approve_attendace();		
+		if(!empty($SlipData))
+		{
+		 	foreach ($SlipData as $retrieved_data){ ?>
+            <tr>
+				<td class="assign"><?php print hrmgt_get_display_name($retrieved_data->employee_id); ?></td>
+				<td class="employee"><?php echo $retrieved_data->month .'-'.$retrieved_data->year;?></td>				
+				<td class="end"><?php echo $retrieved_data->payable_days;?></td>			
+				<td class="action">
+					<a href="?page=hrmgt-payslip&tab=generate_slip&action=generate_slip&detail_id=<?php echo $retrieved_data->id;?>" class="btn btn-primary" id="<?php echo $retrieved_data->id; ?>"> <?php _e('Generate Slip','hr_mgt');?></a>
+                </td>
+             </tr>
+        <?php } } ?>
+		</tbody>
+    </table>
 </div>
 <?php 
 }

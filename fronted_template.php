@@ -1,6 +1,7 @@
 <?php 
 require_once(ABSPATH.'wp-admin/includes/user.php' );
  $obj_holidy=new HrmgtHoliday();
+ $obj_payslip=new HrmgtPayslip;
  $user = wp_get_current_user ();
 
  if (! is_user_logged_in ()) {
@@ -12,6 +13,57 @@ if (is_super_admin ())
 {
 	wp_redirect ( admin_url () . 'admin.php?page=hrmgt-hr_system' );
 }
+$slug_array = array('view_employee','add_attendance_detail','salary_slip');
+//$slug_array = array('view_employee');
+$manager_role = $user->roles;
+if($manager_role[0] != 'manager')
+{
+
+if(in_array($_REQUEST['tab'],$slug_array) || in_array($_REQUEST['type'],$slug_array))
+{
+	 $user_id = get_current_user_id();
+	 //var_dump($user_id);die;
+	 $AttendanceDetailsData = hrmgt_get_attendance_empid($user_id);
+
+	 foreach($AttendanceDetailsData as $AttendanceDetailsData1)
+	 {
+		$test = array();
+		$data[] = $AttendanceDetailsData1->id;
+		$att = array_merge($test,$data);
+	 }
+	 
+	 	
+	if(isset($_REQUEST['employee_id']) && $_REQUEST['employee_id'] != $user_id)
+	 {
+	   wp_redirect(site_url().'?hr-dashboard=user&page=user&tab=view_employee&ction=view&employee_id='.$user_id);
+	    exit();
+	 } 
+	 if(isset($_REQUEST['tab'])&& $_REQUEST['tab'] == 'add_attendance_detail'){
+	 
+		 if(!in_array($_REQUEST['AttendanceDetails_id'],$att))
+		 {
+		    wp_redirect(site_url().'?hr-dashboard=user&page=attendance&tab=monthaly_attendance');
+		   exit();
+		 }
+	 }
+	 
+	  if(isset($_REQUEST['type'])&& $_REQUEST['type'] == 'salary_slip'){
+	  
+	   $SlipData = $obj_payslip->hrmgt_get_generated_slip_by_user_id($user_id);
+	
+	 foreach($SlipData as $SlipData1)
+	 {
+		$test1 = array();
+		$data1[] = $SlipData1->id;
+		$slip_data = array_merge($test1,$data1);
+	 }
+	if(!in_array($_REQUEST['AttDetail_id'],$slip_data)){
+		  wp_redirect(site_url().'?hr-dashboard=user&page=payslip');
+		   exit();
+		 }
+	 } 
+}
+} 
 $HrmgtAttendance= new HrmgtAttendance();
 $HrmgtAttendanceDetails= new HrmgtAttendanceDetails();
 
@@ -37,7 +89,8 @@ $HrmgtAttendanceDetails= new HrmgtAttendanceDetails();
 global $wpdb;	
 if(isset($_POST['punch_in']))
 {	
-	date_default_timezone_set('Asia/Kolkata');
+	//date_default_timezone_set('Asia/Kolkata');
+	date_default_timezone_set('Asia/Dhaka');
 	$current_userid =  get_current_user_id();
 	$date = date("Y-m-d");	
 	$time = date('H:i:s');	
@@ -49,7 +102,7 @@ if(isset($_POST['punch_in']))
 
 if(isset($_POST['lunchtart']))
 {
-	date_default_timezone_set('Asia/Kolkata');	
+	date_default_timezone_set('Asia/Dhaka');	
 	$time = date('H:i:s');	
 	$lunch_in['attendance_id'] =$_POST['id'];	
 	$lunch_in['lunch_start_time'] =$time;
@@ -67,7 +120,7 @@ if(isset($_POST['lunchend']))
 	$result = $wpdb->get_row($sql);
 	$lunch_start_time = $result->lunch_start_time;
 	
-	date_default_timezone_set('Asia/Kolkata');	
+	date_default_timezone_set('Asia/Dhaka');	
 	$time = date('H:i:s');	
 	
 	$lunch_in['lunch_end_time'] =$time;
@@ -106,7 +159,7 @@ if(isset($_POST['punch_out']))
 	}
 	
 	
-	date_default_timezone_set('Asia/Kolkata');	
+	date_default_timezone_set('Asia/Dhaka');	
 	$time = date('H:i:s');	
 	$lunch_in['lunch_end_time'];
 	$lunch_in['lunch_start_time'];
